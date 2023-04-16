@@ -8,6 +8,7 @@ var is_alignable_selection = true
 
 
 
+
 enum ALIGN_TYPE {
     Start,
     Center,
@@ -27,9 +28,9 @@ func load_button_icon(path: String) -> ImageTexture:
 
     return tx
 
+
 func start():
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
-
 
     var align_button_icons = [
         Global.Root + "icons/align-start.png",
@@ -53,13 +54,10 @@ func start():
         "Distribute vertically"
     ]
 
-
     align_container = HBoxContainer.new()
-    align_container.hint_tooltip = "TEST"
     align_container.size_flags_horizontal = 3
     
     var buttons = []
-    print("GOT PAST ADDING CONTAINER")
 
     for i in align_button_icons.size():
         if i == 3:
@@ -80,8 +78,6 @@ func start():
     align_label.text = "Alignment Tools"
     
     var align_separator = HSeparator.new()
-    
-
 
     tool_panel.Align.add_child(align_label)
     tool_panel.Align.move_child(align_label, 12)
@@ -91,11 +87,12 @@ func start():
     tool_panel.Align.move_child(align_separator, 14)
 
 
-    print("MADE BUTTONS")
-
 func update(delta: float):
     # We don't need to check on every single frame
     if not (fmod(delta, 10)): return
+    # else:
+    #     print(Master.IsLoadingMap)
+    #     print(Master.IsEditing)
     if Global.Editor.Toolset.ToolPanels["SelectTool"].visible:
         var stool = Global.Editor.Tools["SelectTool"]
         var selected = stool.Selected
