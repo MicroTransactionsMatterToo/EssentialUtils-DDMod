@@ -6,6 +6,8 @@ var align_button_group: ButtonGroup
 var align_container: HBoxContainer
 var is_alignable_selection = true
 
+
+
 enum ALIGN_TYPE {
     Start,
     Center,
@@ -27,6 +29,7 @@ func load_button_icon(path: String) -> ImageTexture:
 
 func start():
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
+
 
     var align_button_icons = [
         Global.Root + "icons/align-start.png",
@@ -110,8 +113,12 @@ func update(delta: float):
 
 
 func on_align_pressed(align_index: int):
-    # Handle undo and redo logic
-    
+    ## TODO: Implement undo and redo once the MoveRecord and MultiRecord objects are accessible from GDScript
+    # # Store position of current selections before any changes are made
+    # # This is for handling the undo and redo stuff later
+    # var pre_align_positions = {}
+    # for prop in Global.Editor.Tools["SelectTool"].Selected:
+    #     pre_align_positions[prop] = prop.position
 
     # Dispatch to appropriate handler
     match align_index:
@@ -142,6 +149,7 @@ func on_align_pressed(align_index: int):
         _:
             print("Unknown align index")
     Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
+    
 
 func align_center():
     var stool = Global.Editor.Tools["SelectTool"]
@@ -182,12 +190,10 @@ class NodeSorter:
 
 func distribute_horizontally():
     var stool = Global.Editor.Tools["SelectTool"]
-    # Setting object positions directly through stool.Selected crashes Dungeondraft for whatever reason, so use local variable to store
-    var selected = stool.Selected
     # Copy Selected array so we can sort it
-    var selected_copy = stool.Selected.duplicate()
+    var selected = stool.Selected.duplicate()
     # Sort from left to right
-    selected_copy.sort_custom(NodeSorter, "node_sort_hor")
+    selected.sort_custom(NodeSorter, "node_sort_hor")
     var start_position = selected[0].position
     var selection_span = selected[-1].position.x - selected[0].position.x
     var step = selection_span / (selected.size()  -1)
@@ -197,12 +203,10 @@ func distribute_horizontally():
 
 func distribute_vertically():
     var stool = Global.Editor.Tools["SelectTool"]
-    # Setting object positions directly through stool.Selected crashes Dungeondraft for whatever reason, so use local variable to store
-    var selected = stool.Selected
     # Copy Selected array so we can sort it
-    var selected_copy = stool.Selected.duplicate()
+    var selected = stool.Selected.duplicate()
     # Sort from left to right
-    selected_copy.sort_custom(NodeSorter, "node_sort_vert")
+    selected.sort_custom(NodeSorter, "node_sort_vert")
     var start_position = selected[0].position
     var selection_span = selected[-1].position.y - selected[0].position.y
     var step = selection_span / (selected.size()  -1)
