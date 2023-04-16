@@ -1,3 +1,5 @@
+## Copyright MBMM 2023
+
 var script_class = "tool"
 
 var picker_enabled : bool = false
