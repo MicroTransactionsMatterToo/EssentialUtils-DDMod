@@ -105,12 +105,9 @@ func pick_portal():
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
 
-    print("CALLED")
 
     for portal in currentLevel.Portals.get_children():
-        print("GOT PORTAL" + str(portal.Texture))
         if portal.IsMouseWithin():
-            print("Mouse inside portal")
             # Long winded, because if you try to cache the tool locally it breaks things
             Global.Editor.Tools["PortalTool"].textureMenu.SelectTexture(portal.Texture)
             Global.Editor.Tools["PortalTool"].Texture = portal.Texture
@@ -118,10 +115,7 @@ func pick_portal():
             Global.Editor.Tools["PortalTool"].Closed = portal.Closed
             Global.Editor.Tools["PortalTool"].Freestanding = portal.IsFreestanding
             if portal.IsFreestanding:
-                print("Current value: " + str(Global.Editor.Tools["PortalTool"].Rotation.value))
-                print("Portal angle: [rad] " + str(rad2deg(portal.Direction.angle())) + " [deg] " + str(deg2rad(portal.Direction.angle())) + " [raw] " + str(portal.Direction.angle()))
                 Global.Editor.Tools["PortalTool"].Rotation.set_value(rad2deg(portal.Direction.angle()))
-                print("New value: " + str(Global.Editor.Tools["PortalTool"].Rotation.value))
             
             Global.Editor.Toolset.Quickswitch("PortalTool")
             return
@@ -129,7 +123,6 @@ func pick_portal():
         for portal in wall.get_children():
             if portal.Closed != null and portal.IsFreestanding != null:
                 if portal.IsMouseWithin():
-                    print("Mouse inside portal")
                     # Long winded, because if you try to cache the tool locally it breaks things
                     Global.Editor.Tools["PortalTool"].textureMenu.SelectTexture(portal.Texture)
                     Global.Editor.Tools["PortalTool"].Texture = portal.Texture
@@ -137,10 +130,7 @@ func pick_portal():
                     Global.Editor.Tools["PortalTool"].Closed = portal.Closed
                     Global.Editor.Tools["PortalTool"].Freestanding = portal.IsFreestanding
                     if portal.IsFreestanding:
-                        print("Current value: " + str(Global.Editor.Tools["PortalTool"].Rotation.value))
-                        print("Portal angle: [rad] " + str(rad2deg(portal.Direction.angle())) + " [deg] " + str(deg2rad(portal.Direction.angle())) + " [raw] " + str(portal.Direction.angle()))
                         Global.Editor.Tools["PortalTool"].Rotation.set_value(rad2deg(portal.Direction.angle()))
-                        print("New value: " + str(Global.Editor.Tools["PortalTool"].Rotation.value))
                     
                     Global.Editor.Toolset.Quickswitch("PortalTool")
                     return

@@ -120,31 +120,23 @@ func on_align_pressed(align_index: int):
     # Dispatch to appropriate handler
     match align_index:
         ALIGN_TYPE.Start:
-            print("Align start")
             align_left()
         ALIGN_TYPE.Center:
-            print("Align center")
             align_center()
         ALIGN_TYPE.End:
-            print("Align end")
             align_right()
         ALIGN_TYPE.Top:
-            print("Align top")
             align_top()
         ALIGN_TYPE.Middle:
-            print("Align middle")
             align_middle()
         ALIGN_TYPE.Bottom:
-            print("Align bottom")
             align_bottom()
         ALIGN_TYPE.DistributeHoriz:
-            print("Dist Horiz")
             distribute_horizontally()
         ALIGN_TYPE.DistributeVert:
-            print("Dist vert")
             distribute_vertically()
         _:
-            print("Unknown align index")
+            return
     Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
     
 
@@ -273,11 +265,9 @@ func align_left():
     var selected = stool.Selected
 
     var root = get_sides(selected[0])
-    print("Get Sides for Root: " + str(root))
     if root != null:
         for i in range(1, selected.size()):
             var prop_sides = get_sides(selected[i])
-            print("Object " + str(i) + " position = " + str(selected[i].position))
             selected[i].position.x = root["west"] + prop_sides["x_offset"]
 
 
@@ -286,11 +276,9 @@ func align_right():
     var selected = stool.Selected
 
     var root = get_sides(selected[0])
-    print("Get Sides for Root: " + str(root))
     if root != null:
         for i in range(1, selected.size()):
             var prop_sides = get_sides(selected[i])
-            print("Object " + str(i) + " position = " + str(selected[i].position))
             selected[i].position.x = root["east"] - prop_sides["x_offset"]
 
 func align_bottom():
@@ -298,11 +286,9 @@ func align_bottom():
     var selected = stool.Selected
 
     var root = get_sides(selected[0])
-    print("Get Sides for Root: " + str(root))
     if root != null:
         for i in range(1, selected.size()):
             var prop_sides = get_sides(selected[i])
-            print("Object " + str(i) + " position = " + str(selected[i].position))
             selected[i].position.y = root["north"] - prop_sides["y_offset"]
 
 func align_top():
@@ -310,9 +296,7 @@ func align_top():
     var selected = stool.Selected
 
     var root = get_sides(selected[0])
-    print("Get Sides for Root: " + str(root))
     if root != null:
         for i in range(1, selected.size()):
             var prop_sides = get_sides(selected[i])
-            print("Object " + str(i) + " position = " + str(selected[i].position))
             selected[i].position.y = root["south"] + prop_sides["y_offset"]
