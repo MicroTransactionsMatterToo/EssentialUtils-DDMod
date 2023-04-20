@@ -163,7 +163,6 @@ func update(delta: float):
                     var align_widget = AlignFirstItemWidget.new()
                     align_widget.name = "AlignFirstItemWidget"
                     selected[0].add_child(align_widget, false)
-                    print("NEW ALIGN ITEM PATH: " + align_widget.get_path())
                 else:
                     selected[0].get_node("AlignFirstItemWidget").visible = true
             old_root_node = selected[0]
@@ -356,7 +355,6 @@ func align_top():
 
 class AlignFirstItemWidget extends Node2D:
     func _draw() -> void:
-        print("DRAWING ALIGN WIDGET")
         if self.get_parent().SelectRect != null:
             var color = Color.green
             color.a = 0.3

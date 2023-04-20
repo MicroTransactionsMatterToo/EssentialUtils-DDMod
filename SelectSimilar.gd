@@ -17,35 +17,38 @@ func update(delta: float):
         var stool = Global.Editor.Tools["SelectTool"]
         var selected = stool.Selected
 
-        if selected.size() == 1:
+        if selected.size() >= 1:
             filter_button.visible = true
             return
     filter_button.visible = false
 
 func select_alike():
     var stool = Global.Editor.Tools["SelectTool"]
-    match stool.Selectables[stool.Selected[0]]:
-        1:
-            select_walls()
-        2,3:
-            select_portals()
-        4:
-            select_objects()
-        5:
-            select_paths()
-        7:
-            select_patternshapes()
-        8:
-            select_roofs()
-        _:
-            return
+    for item in stool.Selected:
+        match stool.Selectables[item]:
+            1:
+                select_walls(item)
+            2,3:
+                select_portals(item)
+            4:
+                select_objects(item)
+            5:
+                select_paths(item)
+            6:
+                select_lights(item)
+            7:
+                select_patternshapes(item)
+            8:
+                select_roofs(item)
+            _:
+                return
+    Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
 
 
-
-func select_portals():
+func select_portals(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -59,13 +62,13 @@ func select_portals():
                 matching_objects.push_back(portal)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_objects():
+func select_objects(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -74,13 +77,13 @@ func select_objects():
             matching_objects.push_back(obj)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_paths():
+func select_paths(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -89,13 +92,13 @@ func select_paths():
             matching_objects.push_back(path)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_walls():
+func select_walls(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -104,13 +107,13 @@ func select_walls():
             matching_objects.push_back(wall)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_patternshapes():
+func select_patternshapes(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -121,28 +124,32 @@ func select_patternshapes():
             matching_objects.push_back(shape)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
         
-func select_lights():
+func select_lights(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
     for light in currentLevel.Lights.get_children():
-        if light.get_texture() == match_object.get_texture():
+        print("SELECTED LIGHT TEXTURE: " + match_object.get_texture().resource_path)
+        print("MATCH LIGHT TEXTURE: " + light.get_texture().resource_path)
+        if light.get_texture() == match_object.get_texture() and\
+            light.energy == match_object.energy and\
+            light.get_texture_scale() == match_object.get_texture_scale():
             matching_objects.push_back(light)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_roofs():
+func select_roofs(prop):
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
-    var match_object = stool.Selected[0]
+    var match_object = prop
 
     var matching_objects = []
 
@@ -152,5 +159,5 @@ func select_roofs():
             matching_objects.push_back(roof)
     
     for item in matching_objects:
-        if item != match_object:
+        if not (item in stool.Selected):
             stool.SelectThing(item, true)
