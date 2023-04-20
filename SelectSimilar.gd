@@ -135,8 +135,6 @@ func select_lights(prop):
     var matching_objects = []
 
     for light in currentLevel.Lights.get_children():
-        print("SELECTED LIGHT TEXTURE: " + match_object.get_texture().resource_path)
-        print("MATCH LIGHT TEXTURE: " + light.get_texture().resource_path)
         if light.get_texture() == match_object.get_texture() and\
             light.energy == match_object.energy and\
             light.get_texture_scale() == match_object.get_texture_scale():

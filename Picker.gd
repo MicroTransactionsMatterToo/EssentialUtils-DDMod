@@ -94,7 +94,6 @@ func on_tool_enable(tool_id):
     Global.World.Level.Lights.EnableWidgets(true, false)
 
 func on_tool_disable(tool_id):
-    print("PICKER DISABLED")
     picker_enabled = false
     Global.World.Level.Lights.EnableWidgets(false, false)
 
