@@ -14,6 +14,12 @@ var filter : Dictionary = {
     "Roofs": true
 }
 
+var config = {
+    "align_config": {
+        "highlight_first": true
+    }
+}
+
 func start():
     # # Create Toolbar for extra tools
     # if Global.Editor.Toolset.Toolbars.get("EssentialUtils") == null:
@@ -44,10 +50,26 @@ func start():
 
     tool_panel.UsesObjectLibrary = false
 
+    # _lib integration
+    if Engine.has_signal("_lib_register_mod"):
+        Engine.emit_signal("_lib_register_mod", self)
+
+        var input_defs = {
+            "Change to Picker": ["switch_to_picker", "P"]
+        }
+
+        Global.API.InputMapApi.define_actions("Picker", input_defs)
+
+        
+
 func update(delta):
     # Inefficient way to bind a global shortcut for picking, but it's the only way because _Input isn't recieved by Mod tools
-    if Input.is_key_pressed(KEY_P):
-        Global.Editor.Toolset.Quickswitch("PickerTool")
+    if Engine.has_signal("_lib_register_mod"):
+        if Input.is_action_pressed("switch_to_picker") and not Global.Editor.SearchHasFocus:
+            Global.Editor.Toolset.Quickswitch("PickerTool")
+    else:
+        if Input.is_key_pressed(KEY_P) and not Global.Editor.SearchHasFocus:
+            Global.Editor.Toolset.Quickswitch("PickerTool")
 
 func set_filter_state(index: int) -> void:
     if index == 0:
@@ -69,9 +91,12 @@ func set_filter_state(index: int) -> void:
         
 func on_tool_enable(tool_id):
     picker_enabled = true
+    Global.World.Level.Lights.EnableWidgets(true, false)
 
-func on_tool_disabled(tool_id):
+func on_tool_disable(tool_id):
+    print("PICKER DISABLED")
     picker_enabled = false
+    Global.World.Level.Lights.EnableWidgets(false, false)
 
 func on_content_input(event: InputEvent):
     if event is InputEventMouseButton:

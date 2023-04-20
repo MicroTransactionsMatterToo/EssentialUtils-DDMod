@@ -6,7 +6,7 @@ var align_button_group: ButtonGroup
 var align_container: HBoxContainer
 var is_alignable_selection = true
 
-
+var old_root_node = null
 
 
 enum ALIGN_TYPE {
@@ -20,6 +20,12 @@ enum ALIGN_TYPE {
     DistributeVert
 }
 
+var config = {
+    "align_config": {
+        "highlight_first": true
+    }
+}
+
 func load_button_icon(path: String) -> ImageTexture:
     var image = Image.new()
     image.load(path)
@@ -31,6 +37,7 @@ func load_button_icon(path: String) -> ImageTexture:
 
 func start():
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
+    
 
     var align_button_icons = [
         Global.Root + "icons/align-start.png",
@@ -86,16 +93,58 @@ func start():
     tool_panel.Align.add_child(align_separator)
     tool_panel.Align.move_child(align_separator, 14)
 
+    # _lib integration
+    if Engine.has_signal("_lib_register_mod"):
+        Engine.emit_signal("_lib_register_mod", self)
+        var config_builder = self.Global.API.ModConfigApi.create_config(
+            "MBMM.ess_utils", 
+            "EssentialUtils", 
+            "user://ess_utils_config.json"
+        )
+        var margin = 20
+        var bold_text_node = RichTextLabel.new()
+        bold_text_node.bbcode_enabled = true
+        bold_text_node.visible = true
+        # bold_text_node.size_flags_horizontal = 2
+        bold_text_node.fit_content_height = true
+        bold_text_node.parse_bbcode("[b]AlignTool Settings[/b]")
+        config = config_builder\
+            .margin_container()\
+                .with("margin_left", margin)\
+                .with("margin_right", margin)\
+                .with("margin_top", margin)\
+                .with("margin_bottom", margin)\
+            .enter()\
+                .v_box_container("align_config").enter()\
+                    .add_node(bold_text_node)\
+                    .h_separator()\
+                    .check_button("highlight_first", true, "Highlight object used for alignment")\
+                .exit()\
+            .exit()\
+            .build()
+
 
 func update(delta: float):
     # We don't need to check on every single frame
     if not (fmod(delta, 10)): return
-    # else:
-    #     print(Master.IsLoadingMap)
-    #     print(Master.IsEditing)
+
+    var stool = Global.Editor.Tools["SelectTool"]
+    var selected = stool.Selected
+
+    # Handle toggle for item highlighting
+    var highlight_first = true
+    if Engine.has_signal("_lib_register_mod"):
+        highlight_first = config.align_config.highlight_first
+    else:
+        highlight_first = config["align_config"]["highlight_first"]
+
+    # If the old first object is not the same as the current one, hide the widget
+    if old_root_node != selected[0]:
+        if old_root_node != null and old_root_node.has_node("AlignFirstItemWidget"):
+            old_root_node.get_node("AlignFirstItemWidget").visible = false
+    
+    # Stuff we only do if the SelectTool is active
     if Global.Editor.Toolset.ToolPanels["SelectTool"].visible:
-        var stool = Global.Editor.Tools["SelectTool"]
-        var selected = stool.Selected
         # We can only align Portals (unanchored), Objects and Lights
         is_alignable_selection = false
         if selected.size() != 0:
@@ -106,7 +155,18 @@ func update(delta: float):
 
         for button in align_container.get_children():
             button.disabled = !is_alignable_selection
-
+        
+        if is_alignable_selection:
+            if highlight_first:
+                if not selected[0].has_node("AlignFirstItemWidget"):
+                    # Create and add a widget that shows a green box on object everything else will align to
+                    var align_widget = AlignFirstItemWidget.new()
+                    align_widget.name = "AlignFirstItemWidget"
+                    selected[0].add_child(align_widget, false)
+                    print("NEW ALIGN ITEM PATH: " + align_widget.get_path())
+                else:
+                    selected[0].get_node("AlignFirstItemWidget").visible = true
+            old_root_node = selected[0]
 
 
 func on_align_pressed(align_index: int):
@@ -250,15 +310,7 @@ func get_sides(prop: Node2D):
         _:
             return null
 
-# func get_side_offsets(prop: Node2D):
-#     var stool = Global.Editor.Tools["SelectTool"]
 
-#     match stool.Selectables[prop]:
-#         2, 4:
-#             var sides = get_sides(prop)
-#             var side_offsets = {
-
-#             }
 
 func align_left():
     var stool = Global.Editor.Tools["SelectTool"]
@@ -300,3 +352,12 @@ func align_top():
         for i in range(1, selected.size()):
             var prop_sides = get_sides(selected[i])
             selected[i].position.y = root["south"] + prop_sides["y_offset"]
+
+
+class AlignFirstItemWidget extends Node2D:
+    func _draw() -> void:
+        print("DRAWING ALIGN WIDGET")
+        if self.get_parent().SelectRect != null:
+            var color = Color.green
+            color.a = 0.3
+            self.draw_rect(self.get_parent().SelectRect, color, true, 1.0, false)
