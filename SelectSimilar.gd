@@ -47,7 +47,7 @@ func select_alike():
 
 func select_portals(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -67,7 +67,7 @@ func select_portals(prop):
 
 func select_objects(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -82,7 +82,7 @@ func select_objects(prop):
 
 func select_paths(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -97,7 +97,7 @@ func select_paths(prop):
 
 func select_walls(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -112,7 +112,7 @@ func select_walls(prop):
 
 func select_patternshapes(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -129,7 +129,7 @@ func select_patternshapes(prop):
         
 func select_lights(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []
@@ -146,7 +146,7 @@ func select_lights(prop):
 
 func select_roofs(prop):
     var stool = Global.Editor.Tools["SelectTool"]
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
 
     var matching_objects = []

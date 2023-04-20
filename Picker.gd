@@ -107,12 +107,12 @@ func on_content_input(event: InputEvent):
                 object_picked = pick_object()
             if filter["Walls"] and not object_picked:
                 object_picked = pick_wall()
+            if filter["Lights"] and not object_picked:
+                object_picked = pick_light()
             if filter["Paths"] and not object_picked:
                 object_picked = pick_path()
             if filter["Patterns"] and not object_picked:
                 object_picked = pick_patternshape()
-            if filter["Lights"] and not object_picked:
-                object_picked = pick_light()
             if filter["Roofs"] and not object_picked:
                 object_picked = pick_roof()
             
@@ -127,7 +127,7 @@ func on_content_input(event: InputEvent):
 
 func pick_portal():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
 
     for portal in currentLevel.Portals.get_children():
@@ -165,7 +165,7 @@ func pick_portal():
 
 func pick_object():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
     var object_list = currentLevel.Objects.get_children()
     # Reverse the object list, as it's ordered from backmost to foremost
@@ -204,7 +204,7 @@ func pick_object():
     
 func pick_path():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
     for path in currentLevel.Pathways.get_children():
         # For some reason, this IsMouseWithin takes a mouse position.
@@ -218,7 +218,7 @@ func pick_path():
 
 func pick_wall():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurrentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
     for wall in currentLevel.Walls.get_children():
         # For some reason, this IsMouseWithin takes a mouse position.
@@ -238,7 +238,7 @@ func pick_wall():
 
 func pick_patternshape():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     
     # Have to use GetShapes, because PatternShapes.Layers is a SortedDict, which breaks GDScript
     for shape in currentLevel.PatternShapes.GetShapes():
@@ -268,7 +268,7 @@ func pick_patternshape():
 
 func pick_light():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
     # Fetch lights
     var light_array = currentLevel.Lights.get_children()
@@ -276,8 +276,10 @@ func pick_light():
 
     for light in light_array:
         # Have to do it like this, using light.GetWidget causes crashes
+        print("GETTING LIGHT: " + str(light))
         var lightWidget = light.get_child(0)
         if lightWidget.IsMouseWithin():
+            print("MOUSE WITHIN")
             Global.Editor.Tools["LightTool"].texture = light.get_texture()
             Global.Editor.Tools["LightTool"].Intensity = light.energy
             Global.Editor.Tools["LightTool"].Range.set_value(((light.get_texture_scale() * light.get_texture().get_width()) / 512.0))
@@ -289,7 +291,7 @@ func pick_light():
 
 func pick_roof():
     var mousePos = Global.World.get_global_mouse_position()
-    var currentLevel = Global.World.GetLevelByID(Global.World.CurentLevelId)
+    var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
     for roof in currentLevel.Roofs.get_children():
         if roof.IsMouseWithin():
