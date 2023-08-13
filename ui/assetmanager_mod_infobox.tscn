@@ -1,0 +1,92 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://ui/icons/menu/help.png" type="Texture" id=1]
+[ext_resource path="res://materials/MenuBackground.material" type="Material" id=2]
+
+[node name="InfoboxRoot" type="PanelContainer"]
+material = ExtResource( 2 )
+anchor_left = 1.0
+anchor_right = 1.0
+margin_left = -248.0
+margin_top = 40.0
+margin_right = -50.0
+grow_horizontal = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_left = 6.0
+margin_top = 4.0
+margin_right = 192.0
+margin_bottom = 176.0
+
+[node name="AssetName" type="HBoxContainer" parent="VBoxContainer"]
+margin_right = 186.0
+margin_bottom = 31.0
+
+[node name="AssetNameLbl" type="Label" parent="VBoxContainer/AssetName"]
+margin_right = 101.0
+margin_bottom = 31.0
+size_flags_horizontal = 0
+text = "Asset Name: "
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="val" type="Label" parent="VBoxContainer/AssetName"]
+margin_left = 105.0
+margin_right = 113.0
+margin_bottom = 31.0
+
+[node name="AssetPack" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 35.0
+margin_right = 186.0
+margin_bottom = 66.0
+
+[node name="AssetPackLbl" type="Label" parent="VBoxContainer/AssetPack"]
+margin_right = 87.0
+margin_bottom = 31.0
+size_flags_horizontal = 0
+text = "Asset Pack:"
+
+[node name="val" type="Label" parent="VBoxContainer/AssetPack"]
+margin_left = 91.0
+margin_right = 99.0
+margin_bottom = 31.0
+
+[node name="X" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 70.0
+margin_right = 186.0
+margin_bottom = 101.0
+
+[node name="XLbl" type="Label" parent="VBoxContainer/X"]
+margin_right = 21.0
+margin_bottom = 31.0
+size_flags_horizontal = 0
+text = "X:"
+
+[node name="val" type="Label" parent="VBoxContainer/X"]
+margin_left = 25.0
+margin_right = 33.0
+margin_bottom = 31.0
+
+[node name="Y" type="HBoxContainer" parent="VBoxContainer"]
+margin_top = 105.0
+margin_right = 186.0
+margin_bottom = 136.0
+
+[node name="YLbl" type="Label" parent="VBoxContainer/Y"]
+margin_right = 20.0
+margin_bottom = 31.0
+size_flags_horizontal = 0
+text = "Y:"
+
+[node name="val" type="Label" parent="VBoxContainer/Y"]
+margin_left = 24.0
+margin_right = 32.0
+margin_bottom = 31.0
+
+[node name="DetailWindowButton" type="Button" parent="VBoxContainer"]
+margin_top = 140.0
+margin_right = 186.0
+margin_bottom = 172.0
+text = "Full Assetpack Info"
+icon = ExtResource( 1 )

@@ -171,6 +171,9 @@ func pick_object():
     # Reverse the object list, as it's ordered from backmost to foremost
     object_list.invert()
 
+    var packsUsed = []
+
+
     for obj in object_list:
         # Method to check if mouse is over a non-transparent pixel of the sprite attached to an object
         if obj.Sprite.is_pixel_opaque(obj.Sprite.to_local(mousePos)):
@@ -199,6 +202,14 @@ func pick_object():
             # Switch tools
             Global.Editor.Toolset.Quickswitch("ObjectTool")
             Global.Editor.Tools["ObjectTool"].Preview.BlockLight = obj.BlockLight
+
+            # Testing shit
+            var objTexture = obj.Texture.resource_path
+            var packID = objTexture.right(12).split("/")[0]
+            var pack = Global.Editor.owner.AssetPacks.get(packID)
+            print(pack.Name)
+            print(pack.ID)
+            print(pack.Path)
             return true
     return false
     
