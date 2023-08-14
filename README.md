@@ -32,3 +32,6 @@ Allows for quick selection of all cosmetically similar items on map. Selection c
 - Pattern Shapes: Texture, Color and Rotation
 - Lights: Texture
 - Roofs: Texture and Roof Type
+
+## Asset Manager
+Allows viewing details on the number of instances of objects and textures used from an asset pack, as well as disabling them from within the mods UI. This is still somewhat WIP, and hasn't been well tested, so use with care.
