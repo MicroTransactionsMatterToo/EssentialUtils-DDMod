@@ -176,6 +176,9 @@ func on_align_pressed(align_index: int):
     # for prop in Global.Editor.Tools["SelectTool"].Selected:
     #     pre_align_positions[prop] = prop.position
 
+    # Record pre-align transforms
+    Global.Editor.Tools["SelectTool"].SavePreTransforms()
+
     # Dispatch to appropriate handler
     match align_index:
         ALIGN_TYPE.Start:
@@ -196,6 +199,9 @@ func on_align_pressed(align_index: int):
             distribute_vertically()
         _:
             return
+
+    # Save transforms for undo
+    Global.Editor.Tools["SelectTool"].RecordTransforms()
     Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
     
 
