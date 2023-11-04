@@ -11,7 +11,7 @@ var dw_instance: WindowDialog
 
 var infobox_visible: bool
 var pack_audit
-var DEBUG = false
+var DEBUG = true
 
 func start():
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
@@ -75,7 +75,7 @@ func get_prop_pack(prop: Node2D) -> Dictionary:
     
     return {"packInfo": pack, "packID": packID, "objectName": objectPackName}
 
-func identify_pack(texture: Texture) -> Dictionary:
+func identify_pack(texture) -> Dictionary:
     if (texture.resource_path.left(12) == "res://packs/"):
         var texture_path = texture.resource_path.right(12).split("/")
         var pack = Global.Editor.owner.AssetPacks.get(texture_path[0])
@@ -102,7 +102,7 @@ func get_used_tile_textures(level):
     return textures
 
 # Appends identified assets from a pack to the overall list
-func append_pack_items(pack_info: Dictionary, obj_type: String, pack_list: Array) -> void:
+func append_pack_items(pack_info, obj_type, pack_list) -> void:
     pack_info["objType"] = obj_type
     if (not pack_list.has(pack_info["packID"])):
         pack_list[pack_info["packID"]] = []
