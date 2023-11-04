@@ -258,7 +258,7 @@ func distribute_vertically() -> void:
         selected[i].position.y = (start_position.y + (step * i))
 
 # Function to return bounds of a given prop
-func get_sides(prop: Node2D) -> Dictionary:
+func get_sides(prop: Node2D):
     var stool = Global.Editor.Tools["SelectTool"]
 
     match stool.Selectables[prop]:
