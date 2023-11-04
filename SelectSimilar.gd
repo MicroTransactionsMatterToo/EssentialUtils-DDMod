@@ -5,13 +5,15 @@ var filter_button: BaseButton
 
 var filter_button_enabled = false
 
-func start():
+
+func start() -> void:
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
 
     filter_button = tool_panel.CreateButton("Select Similar", "res://ui/icons/misc/box.png")
     filter_button.connect("pressed", self, "select_alike")
 
-func update(delta: float):
+
+func update(delta: float) -> void:
     if not (fmod(delta, 10.0)): return
     if Global.Editor.Toolset.ToolPanels["SelectTool"].visible:
         var stool = Global.Editor.Tools["SelectTool"]
@@ -22,7 +24,8 @@ func update(delta: float):
             return
     filter_button.visible = false
 
-func select_alike():
+
+func select_alike() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     for item in stool.Selected:
         match stool.Selectables[item]:
@@ -45,7 +48,7 @@ func select_alike():
     Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
 
 
-func select_portals(prop):
+func select_portals(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -65,7 +68,7 @@ func select_portals(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_objects(prop):
+func select_objects(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -80,7 +83,7 @@ func select_objects(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_paths(prop):
+func select_paths(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -95,7 +98,7 @@ func select_paths(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_walls(prop):
+func select_walls(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -110,7 +113,7 @@ func select_walls(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_patternshapes(prop):
+func select_patternshapes(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -127,7 +130,7 @@ func select_patternshapes(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
         
-func select_lights(prop):
+func select_lights(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop
@@ -144,7 +147,7 @@ func select_lights(prop):
         if not (item in stool.Selected):
             stool.SelectThing(item, true)
 
-func select_roofs(prop):
+func select_roofs(prop: Node2D) -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     var match_object = prop

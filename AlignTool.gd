@@ -1,4 +1,5 @@
 ## Copyright MBMM 2023
+class_name AlignTool
 
 var script_class = "tool"
 var align_button_group: ButtonGroup
@@ -26,6 +27,7 @@ var config = {
     }
 }
 
+
 func load_button_icon(path: String) -> ImageTexture:
     var image = Image.new()
     image.load(path)
@@ -34,10 +36,8 @@ func load_button_icon(path: String) -> ImageTexture:
 
     return tx
 
-
-func start():
+func ui() -> void:
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
-    
 
     var align_button_icons = [
         Global.Root + "icons/align-start.png",
@@ -68,9 +68,9 @@ func start():
 
     for i in align_button_icons.size():
         if i == 3:
-            align_container.add_spacer()
+            align_container.add_spacer(false)
         if i == 6:
-            align_container.add_spacer()
+            align_container.add_spacer(false)
         var button = Button.new()
         button.icon = load_button_icon(align_button_icons[i])
         button.toggle_mode = false
@@ -93,7 +93,8 @@ func start():
     tool_panel.Align.add_child(align_separator)
     tool_panel.Align.move_child(align_separator, 14)
 
-    # _lib integration
+## Uses the _Lib mod to create a preferences UI
+func config_ui() -> void:
     if Engine.has_signal("_lib_register_mod"):
         Engine.emit_signal("_lib_register_mod", self)
         var config_builder = self.Global.API.ModConfigApi.create_config(
@@ -122,6 +123,14 @@ func start():
                 .exit()\
             .exit()\
             .build()
+
+func start():
+    var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
+    self.ui()
+    # _lib integration
+    self.config_ui()
+
+    
 
 
 func update(delta: float):
@@ -168,14 +177,7 @@ func update(delta: float):
             old_root_node = selected[0]
 
 
-func on_align_pressed(align_index: int):
-    ## TODO: Implement undo and redo once the MoveRecord and MultiRecord objects are accessible from GDScript
-    # # Store position of current selections before any changes are made
-    # # This is for handling the undo and redo stuff later
-    # var pre_align_positions = {}
-    # for prop in Global.Editor.Tools["SelectTool"].Selected:
-    #     pre_align_positions[prop] = prop.position
-
+func on_align_pressed(align_index: int) -> void:
     # Record pre-align transforms
     Global.Editor.Tools["SelectTool"].SavePreTransforms()
 
@@ -205,7 +207,7 @@ func on_align_pressed(align_index: int):
     Global.Editor.Tools["SelectTool"].EnableTransformBox(true)
     
 
-func align_center():
+func align_center() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -216,7 +218,7 @@ func align_center():
     for i in range(1, selected.size()):
         selected[i].position.x = root_x
 
-func align_middle():
+func align_middle() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -227,22 +229,9 @@ func align_middle():
     for i in range(1, selected.size()):
         selected[i].position.y = root_y
 
-class NodeSorter:
-    # L to R sort of Node2D
-    static func node_sort_hor(a, b):
-        if a.position.x < b.position.x:
-            return true
-        else:
-            return false
-    
-    # Top to Bottom sort of Node2D
-    static func node_sort_vert(a, b):
-        if a.position.y > b.position.y:
-            return true
-        else:
-            return false
 
-func distribute_horizontally():
+
+func distribute_horizontally() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     # Copy Selected array so we can sort it
     var selected = stool.Selected.duplicate()
@@ -255,7 +244,7 @@ func distribute_horizontally():
     for i in range(stool.Selected.size()):
         selected[i].position.x = (start_position.x + (step * i))
 
-func distribute_vertically():
+func distribute_vertically() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     # Copy Selected array so we can sort it
     var selected = stool.Selected.duplicate()
@@ -268,9 +257,8 @@ func distribute_vertically():
     for i in range(stool.Selected.size()):
         selected[i].position.y = (start_position.y + (step * i))
 
-
-## Function to return bounds of a given prop
-func get_sides(prop: Node2D):
+# Function to return bounds of a given prop
+func get_sides(prop: Node2D) -> Dictionary:
     var stool = Global.Editor.Tools["SelectTool"]
 
     match stool.Selectables[prop]:
@@ -315,9 +303,7 @@ func get_sides(prop: Node2D):
         _:
             return null
 
-
-
-func align_left():
+func align_left() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -328,7 +314,7 @@ func align_left():
             selected[i].position.x = root["west"] + prop_sides["x_offset"]
 
 
-func align_right():
+func align_right() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -338,7 +324,7 @@ func align_right():
             var prop_sides = get_sides(selected[i])
             selected[i].position.x = root["east"] - prop_sides["x_offset"]
 
-func align_bottom():
+func align_bottom() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -348,7 +334,7 @@ func align_bottom():
             var prop_sides = get_sides(selected[i])
             selected[i].position.y = root["north"] - prop_sides["y_offset"]
 
-func align_top():
+func align_top() -> void:
     var stool = Global.Editor.Tools["SelectTool"]
     var selected = stool.Selected
 
@@ -358,7 +344,22 @@ func align_top():
             var prop_sides = get_sides(selected[i])
             selected[i].position.y = root["south"] + prop_sides["y_offset"]
 
+class NodeSorter:
+    # L to R sort of Node2D
+    static func node_sort_hor(a, b):
+        if a.position.x < b.position.x:
+            return true
+        else:
+            return false
+    
+    # Top to Bottom sort of Node2D
+    static func node_sort_vert(a, b):
+        if a.position.y > b.position.y:
+            return true
+        else:
+            return false
 
+# Widget for displaying which item is being align to
 class AlignFirstItemWidget extends Node2D:
     func _draw() -> void:
         if self.get_parent().SelectRect != null:

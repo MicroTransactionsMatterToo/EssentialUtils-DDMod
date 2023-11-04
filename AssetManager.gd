@@ -11,6 +11,7 @@ var dw_instance: WindowDialog
 
 var infobox_visible: bool
 var pack_audit
+var DEBUG = false
 
 func start():
     var tool_panel = Global.Editor.Toolset.GetToolPanel("SelectTool")
@@ -19,13 +20,14 @@ func start():
     enable_button.toggle_mode = true
     enable_button.connect("toggled", self, "toggle_asset_info")
 
-    
-
     load_infobox()
     load_detailwindow()
 
 func debugp(msg):
-    print(msg)
+    if DEBUG:
+        print(msg)
+    else:
+        pass
 
 func update(delta: float):
     if not (fmod(delta, 10.0)): return
@@ -43,7 +45,6 @@ func update(delta: float):
                 assetPack.text = "DungeonDraft Built-in"
             else:
                 assetPack.text = prop_info["packInfo"].Name
-
 
             assetName.text = prop_info.objectName
             Xlbl.text = curr_prop.position.x
@@ -64,7 +65,7 @@ func fetch_prop_info():
     if selected.size() >= 1:
         return selected[0]
 
-func get_prop_pack(prop):
+func get_prop_pack(prop: Node2D) -> Dictionary:
     var stool = Global.Editor.Tools["SelectTool"]
     var objTexture = get_texture(prop)
     objTexture = objTexture.resource_path
@@ -74,7 +75,7 @@ func get_prop_pack(prop):
     
     return {"packInfo": pack, "packID": packID, "objectName": objectPackName}
 
-func identify_pack(texture):
+func identify_pack(texture: Texture) -> Dictionary:
     if (texture.resource_path.left(12) == "res://packs/"):
         var texture_path = texture.resource_path.right(12).split("/")
         var pack = Global.Editor.owner.AssetPacks.get(texture_path[0])
@@ -100,63 +101,67 @@ func get_used_tile_textures(level):
         debugp(textures[id].resource_path)
     return textures
 
-func audit_asset_packs():
+# Appends identified assets from a pack to the overall list
+func append_pack_items(pack_info: Dictionary, obj_type: String, pack_list: Array) -> void:
+    pack_info["objType"] = obj_type
+    if (not pack_list.has(pack_info["packID"])):
+        pack_list[pack_info["packID"]] = []
+    pack_list[pack_info["packID"]].append(pack_info)
+
+# Determines which packs are used, and what assets from those packs are used
+#
+# Audit output is similar to the following
+# ```
+# var example = {
+# 	"packID": [
+#       {
+#           "pack": <Pack Object>,
+#           "packID": "packID",
+#           "texture": "texturePath",
+#           "packName": "Example Pack"
+#       } 
+#   ]
+# }
+# ```
+func audit_asset_packs() -> Dictionary:
     debugp("Audit called")
     var pack_list: Dictionary = {}
     debugp("Instantiated dictionary")
     for level in Global.World.AllLevels:
         debugp("Auditing packs for " + level.Label + "[Layer " + level.ID + "]")
         debugp("Auditing tilemaps")
+
         var tilemap_textures = get_used_tile_textures(level)
         for tilemap_texture in tilemap_textures.values():
             var pack = identify_pack(tilemap_texture)
-            pack["objType"] = "Tilemap"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "Tilemap", pack_list)
         
         debugp("Auditing walls")
         for wall in level.Walls.get_children():
             var pack = identify_pack(wall.Texture)
-            pack["objType"] = "Wall"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "Wall", pack_list)
         
         debugp("Auditing portals")
         for wall in level.Walls.get_children():
             for portal in wall.get_children():
                 if (get_texture(portal) != null):
                     var pack = identify_pack(get_texture(portal))
-                    pack["objType"] = "Portal"
-                    if (not pack_list.has(pack["packID"])):
-                        pack_list[pack["packID"]] = []
-                    pack_list[pack["packID"]].append(pack)
+                    append_pack_items(pack, "Portal", pack_list)
 
         debugp("Auditing free-standing portals")
         for portal in level.Portals.get_children():
             var pack = identify_pack(get_texture(portal))
-            pack["objType"] = "Portal"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "Portal", pack_list)
 
         debugp("Auditing Roofs")
         for roof in level.Roofs.get_children():
             var pack = identify_pack(get_texture(roof))
-            pack["objType"] = "Roof"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
-        
-
+            append_pack_items(pack, "Roof", pack_list)
+      
         debugp("Audit Pattern Shapes")
         for patternshape in level.PatternShapes.GetShapes():
             var pack = identify_pack(get_texture(patternshape))
-            pack["objType"] = "PatternShape"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "PatternShape", pack_list)
         
         debugp("Audit Terrain Textures")
         # level.MaterialLookup is a SortedDictionary which will crash DD if we try to read from it,
@@ -166,34 +171,22 @@ func audit_asset_packs():
             for mesh in meshLayer:
                 var dummy_obj = {"resource_path": mesh.texture}
                 var pack = identify_pack(dummy_obj)
-                pack["objType"] = "TerrainTexture"
-                if (not pack_list.has(pack["packID"])):
-                    pack_list[pack["packID"]] = []
-                pack_list[pack["packID"]].append(pack)
+                append_pack_items(pack, "TerrainTexture", pack_list)
         
         debugp("Audit Terrain Textures 2")
         for texture in level.Terrain.Textures:
             var pack = identify_pack(texture)
-            pack["objType"] = "TerrainTexture"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "TerrainTexture", pack_list)
 
         debugp("Audit Paths")
         for pathway in level.Pathways.get_children():
             var pack = identify_pack(get_texture(pathway))
-            pack["objType"] = "Pathway"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "Pathway", pack_list)
     
         debugp("Audit Lights")
         for light in level.Lights.get_children():
             var pack = identify_pack(get_texture(light))
-            pack["objType"] = "Light"
-            if (not pack_list.has(pack["packID"])):
-                pack_list[pack["packID"]] = []
-            pack_list[pack["packID"]].append(pack)
+            append_pack_items(pack, "Light", pack_list)
     
     debugp("Auditing ObjectCensus")
     for texture in Global.Editor.owner.ObjectCensus.keys():
@@ -219,33 +212,29 @@ func get_pack_use_count(audit_info):
     return count_dict
 
 func load_infobox():
-    print(Global.Editor.get_node("InfoboxRoot"))
     if (Global.Editor.get_node("InfoboxRoot") == null):
         infobox = load(Global.Root + "ui/assetmanager_mod_infobox.tscn")
         infobox_instance = infobox.instance()
         infobox_instance.visible = false
-        # print("LOADED")
+
         Global.Editor.add_child(infobox_instance, true)
         
         infobox_instance.get_node("VBoxContainer/DetailWindowButton").connect("pressed", self, "show_detailwindow")
     else:
-        # print("ALREADY LOADED")
         pass
 
 func load_detailwindow():
-    print(Global.Editor.get_node("AssetManagerDetailWindow"))
     if (Global.Editor.get_node("AssetManagerDetailWindow") == null):
         dw = load(Global.Root + "ui/assetmanager_mod_detailwindow.tscn")
         dw_instance = dw.instance()
-        # dw_instance.visible = false
-        # print("LOADED")
         Global.Editor.add_child(dw_instance, true)
+
         var opt_button: Button = dw_instance.get_node("MarginContainer/VBoxContainer/HBoxContainer/OptimiseButton")
         opt_button.connect("pressed", self, "deselect_unused")
+
         var apply: Button = dw_instance.get_node("MarginContainer/VBoxContainer/HBoxContainer/ApplyButton")
         apply.connect("pressed", self, "apply_pack_changes")
     else:
-        # print("ALREADY LOADED")
         pass
 
 func toggle_asset_info(button_pressed: bool):
@@ -324,9 +313,6 @@ func apply_pack_changes():
 
     # Show and Hide Asset Window in background to ensure packItems is populated
     asset_window.popup_centered(Vector2(0, 0))
-    # asset_window.hide()
-
-    
 
     debugp("Got tree")
     var new_asset_packs = []
@@ -345,13 +331,6 @@ func apply_pack_changes():
     asset_window.UpdateCheckAll()
     asset_apply_button.pressed = true
     asset_apply_button.pressed = false
-    
-    # debugp("Exited loop")
-    # # Global.Preferences.ActiveAssetPacks = new_asset_pack_ids
-    # # Global.Preferences.Save()
-    # debugp("Svved global")
-    # Global.Editor.owner.Header.AssetManifest = new_asset_packs
-    # debugp("Assigned new packs")
 
 # Utility function for retrieving prop textures
 # Methods:

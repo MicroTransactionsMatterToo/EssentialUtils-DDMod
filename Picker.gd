@@ -20,36 +20,34 @@ var config = {
     }
 }
 
-func start():
-    # # Create Toolbar for extra tools
-    # if Global.Editor.Toolset.Toolbars.get("EssentialUtils") == null:
-    #     Global.Editor.Toolset.Toolbars["EssentialUtils"] = Global.Editor.Toolset.CreateToolbar("EssentialUtils", "res://ui/icons/misc/generate.png")
-    
-    # Create actual mod tool
-    # print(to_json(Global.Editor.Toolset.Toolbars["EssentialUtils"]))
+
+func ui() -> void:
     var tool_panel = Global.Editor.Toolset.CreateModTool(self, "Objects", "PickerTool", "Picker Tool", "res://ui/icons/buttons/color_wheel.png")
 
     var filterButton = MenuButton.new()
     filterButton.text = "Filter"
     filterButton.flat = false
+    
     filterMenu = filterButton.get_popup()
     filterMenu.hide_on_checkable_item_selection = false
     filterMenu.add_check_item("All", -1, 0)
     var filter_options = ["Walls", "Portals", "Objects", "Paths", "Lights", "Patterns", "Roofs"]
 
-    var p = 1
+    var idx = 1
     for option in filter_options:
-        filterMenu.add_check_item(option, p)
-        filterMenu.set_item_checked(p, true)
-        p += 1
+        filterMenu.add_check_item(option, idx)
+        filterMenu.set_item_checked(idx, true)
+        idx += 1
     
     filterMenu.connect("id_pressed", self, "set_filter_state", null, 0)
-
 
     tool_panel.align.add_child(filterButton, false)
 
     tool_panel.UsesObjectLibrary = false
 
+
+func start():
+    self.ui()
     # _lib integration
     if Engine.has_signal("_lib_register_mod"):
         Engine.emit_signal("_lib_register_mod", self)
@@ -60,7 +58,6 @@ func start():
 
         Global.API.InputMapApi.define_actions("Picker", input_defs)
 
-        
 
 func update(delta):
     # Inefficient way to bind a global shortcut for picking, but it's the only way because _Input isn't recieved by Mod tools
@@ -70,6 +67,7 @@ func update(delta):
     else:
         if Input.is_key_pressed(KEY_P) and not Global.Editor.SearchHasFocus:
             Global.Editor.Toolset.Quickswitch("PickerTool")
+
 
 func set_filter_state(index: int) -> void:
     if index == 0:
@@ -88,16 +86,19 @@ func set_filter_state(index: int) -> void:
             if allChecked and not val:
                 allChecked = false
         filterMenu.set_item_checked(0, allChecked)
-        
-func on_tool_enable(tool_id):
+
+
+func on_tool_enable(tool_id) -> void:
     picker_enabled = true
     Global.World.Level.Lights.EnableWidgets(true, false)
 
-func on_tool_disable(tool_id):
+
+func on_tool_disable(tool_id) -> void:
     picker_enabled = false
     Global.World.Level.Lights.EnableWidgets(false, false)
 
-func on_content_input(event: InputEvent):
+
+func on_content_input(event: InputEvent) -> void:
     if event is InputEventMouseButton:
         if event.button_index == BUTTON_LEFT and event.pressed:
             var object_picked = false
@@ -115,20 +116,11 @@ func on_content_input(event: InputEvent):
                 object_picked = pick_patternshape()
             if filter["Roofs"] and not object_picked:
                 object_picked = pick_roof()
-            
-            
-            
-            
 
-# func set_tool_selection(toolname: String, texture: Texture) -> void:
-#     var tool = Global.Editor.Tools[toolname]
-#     tool.textureMenu.SelectTexture(texture)
-#     tool.Texture = texture
 
-func pick_portal():
+func pick_portal() -> void:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
-
 
     for portal in currentLevel.Portals.get_children():
         if portal.IsMouseWithin():
@@ -143,6 +135,7 @@ func pick_portal():
             
             Global.Editor.Toolset.Quickswitch("PortalTool")
             return
+
     for wall in currentLevel.Walls.get_children():
         for portal in wall.get_children():
             if portal.Closed != null and portal.IsFreestanding != null:
@@ -160,10 +153,7 @@ func pick_portal():
                     return
 
 
-
-
-
-func pick_object():
+func pick_object() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
@@ -172,7 +162,6 @@ func pick_object():
     object_list.invert()
 
     var packsUsed = []
-
 
     for obj in object_list:
         # Method to check if mouse is over a non-transparent pixel of the sprite attached to an object
@@ -193,27 +182,19 @@ func pick_object():
             Global.Editor.Tools["ObjectTool"].BlockLight = obj.BlockLight
             Global.Editor.Tools["ObjectTool"].Controls["BlockLight"].set_pressed_no_signal(obj.BlockLight)
 
-
             if obj.hasCustomColor:
                 Global.Editor.Tools["ObjectTool"].customColor = obj.customColor
                 Global.Editor.Tools["ObjectTool"].PromoteCustomColor()
 
-            
             # Switch tools
             Global.Editor.Toolset.Quickswitch("ObjectTool")
             Global.Editor.Tools["ObjectTool"].Preview.BlockLight = obj.BlockLight
 
-            # Testing shit
-            var objTexture = obj.Texture.resource_path
-            var packID = objTexture.right(12).split("/")[0]
-            var pack = Global.Editor.owner.AssetPacks.get(packID)
-            print(pack.Name)
-            print(pack.ID)
-            print(pack.Path)
             return true
     return false
-    
-func pick_path():
+
+
+func pick_path() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
@@ -227,7 +208,8 @@ func pick_path():
             return true
     return false
 
-func pick_wall():
+
+func pick_wall() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
@@ -245,9 +227,9 @@ func pick_wall():
             Global.Editor.Toolset.Quickswitch("WallTool")
             return true
     return false
-            
 
-func pick_patternshape():
+
+func pick_patternshape() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
     
@@ -275,9 +257,7 @@ func pick_patternshape():
     return false
 
 
-
-
-func pick_light():
+func pick_light() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
@@ -287,10 +267,8 @@ func pick_light():
 
     for light in light_array:
         # Have to do it like this, using light.GetWidget causes crashes
-        print("GETTING LIGHT: " + str(light))
         var lightWidget = light.get_child(0)
         if lightWidget.IsMouseWithin():
-            print("MOUSE WITHIN")
             Global.Editor.Tools["LightTool"].texture = light.get_texture()
             Global.Editor.Tools["LightTool"].Intensity = light.energy
             Global.Editor.Tools["LightTool"].Range.set_value(((light.get_texture_scale() * light.get_texture().get_width()) / 512.0))
@@ -300,7 +278,7 @@ func pick_light():
     return false
 
 
-func pick_roof():
+func pick_roof() -> bool:
     var mousePos = Global.World.get_global_mouse_position()
     var currentLevel = Global.World.levels[Global.World.CurrentLevelId]
 
